@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: R2CcffDQf+nyWMSyFtoB8xCGWPl3ymeKNsxJD1+QEpjCx4j5fllBtOdpMtpTvZfpO9so8mdqifsizzBYv5fo5L9Zd4G+a/1hRIdk9VI+X9+bRcON3O8El+2F/jtgL6CjSBbaCiP7PiaDIVWkA1DA0g6FGr5MxeqrfRP53t/GvlG96fq6bZyj9mY98E7ZOFQn6roDzjwiJwfArACNldV18x/2TZki70GT59StAMSPKxs5oPE5p1IxDYQW3HXDwdWKHMjtSDPW9esYp6RmpzfV9ozUUgz42hv3JVhPwMPyOeulWvLHi9yl3kceP/RdKZE9Zrn+U4x+fLurDIU5bWuPIYqvekCIz0Y9qFMaqRC1pJ1bixSV2ZqaqGhuc6AuaGVZDWzvN0Z+iM/OrUq7KweCOzQkSmFJNoXdcGrEBNHnyOfY8/gJn+IE/ZuXsarzuD3VTrmfQB4oKSxA+5WkP9zMeICUfPZXKE7SAPqAY1boROurFxjCquWZ9Z9fBwzEwSyV5F70koSdUl6LT3IrIZyKHVdeGjRW4CRmBZoxRqyI8afIsBQtoJ21Hi7LcmCAK0+adMzqHcOJym8olADbdFvN972tEzOIbpda/xqSATDxUFxCbiJo8Wzpx7q9lTzVEBnW3opQ2YftEzJ86o+bIT6SRJnB3W0JO8HOLZmyQn0jBEA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Rinkitink-in-Oz--13-Wherein-Is-Recorded-the-Perilous-Quest-of-Prince-Inga-of-Pingaree-and-King-__958
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
